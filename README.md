@@ -8,6 +8,7 @@ IPアドレスやブラウザ情報をチェックできるWordPressプラグイ
 http://blog.a-z0-9.net/access
 
 ##表示される情報
+###アクセス情報
 * REMOTE_ADDR (IPアドレス)
 * REMOTE_HOST (ホスト名)
 * REMOTE_PORT (通信に利用したポート番号)
@@ -18,3 +19,19 @@ http://blog.a-z0-9.net/access
 * HTTP_CONNECTION (接続の状態)
 * HTTP_REFERER (どこから来たのか)
 
+###ブラウザ情報
+* appCodeName (コードネーム)
+* appName (ブラウザ)
+* appVersion (ブラウザのバージョン)
+* userAgent (ユーザーエージェント)
+* ディスプレイサイズ
+* ブラウザ表示サイズ (※ブックマーク領域等除く)
+* referrer (リファラー)
+* colorDepth (色数)
+* navigator.language (言語バージョン)
+* navigator.browserLanguage (ブラウザの言語バージョン)
+* cookieEnabled (クッキーが使えるか)
+* javaEnabled (javaアプレットが使えるか)
+* javaScriptが使えるか
+* navigator.mimeTypes (MIMEタイプ)
+* navigator.plugins (プラグイン)
