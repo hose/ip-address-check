@@ -45,10 +45,17 @@ function getIpAddress(){
     //タイトル画像
     $titleImagePath = plugins_url() . "/ip-address-check/images/access_logo.png";
 
+    //現在アクセスしているURL
+    $url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+
+
 echo <<<EOT
 <img style="background:#fff; border-radius: 50%; margin: 20px auto; border: 1px outset #b7b600; padding: 60px 0px;" src="{$titleImagePath}">
 <div id="ip-box">
 <h2>アクセス情報</h2>
+
+<h3>■URL <small>(現在アクセスしているURL)</small></h3>
+<p>{$url}</p>
 
 <h3>■REMOTE_ADDR <small>(IPアドレス)</small></h3>
 <p>{$server['REMOTE_ADDR']}</p>
