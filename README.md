@@ -24,6 +24,7 @@ http://blog.a-z0-9.net/access
 ##表示される情報
 ###アクセス情報
 * URL（現在アクセスしているURL）
+* WP_LOGIN (WordPressにログインしているか)
 * REMOTE_ADDR (IPアドレス)
 * REMOTE_HOST (ホスト名)
 * REMOTE_PORT (通信に利用したポート番号)

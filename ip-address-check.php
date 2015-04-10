@@ -3,7 +3,7 @@
 Plugin Name: ipアドレスチェック
 Plugin URI: http://blog.a-z0-9.net/access
 Description: 閲覧者のアクセス情報を表示する事ができるようになります。
-Version: 0.1
+Version: 0.2
 Author: hose
 Author URI: http://blog.a-z0-9.net/
 License: GPL2
@@ -48,6 +48,28 @@ function getIpAddress(){
     //現在アクセスしているURL
     $url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
 
+    //WPへのログイン状態
+    global $current_user;
+    get_currentuserinfo();
+    if ($current_user->ID == '') {
+        $wp_login_user = "ログインしていません。";
+    } else if ($current_user->user_level == 10) {
+        // 管理者(administrator)
+        $wp_login_user = "管理者(administrator)としてログインしています。";
+    } else if ($current_user->user_level >= 7) {
+        // 編集者(editor)
+        $wp_login_user = "編集者(editor)としてログインしています。";
+    } else if ($current_user->user_level >= 4) {
+        // 作成者(author)
+        $wp_login_user = "作成者(author)としてログインしています。";
+    } else if ($current_user->user_level >= 1) {
+        // 投稿者(contributor)
+        $wp_login_user = "投稿者(contributor)としてログインしています。";
+    } else {
+        // 購読者(subscriber)
+        $wp_login_user = "購読者(subscriber)としてログインしています。";
+    }
+
 
 echo <<<EOT
 <img style="background:#fff; border-radius: 50%; margin: 20px auto; border: 1px outset #b7b600; padding: 60px 0px;" src="{$titleImagePath}">
@@ -56,6 +78,9 @@ echo <<<EOT
 
 <h3>■URL <small>(現在アクセスしているURL)</small></h3>
 <p>{$url}</p>
+
+<h3>■WP_LOGIN <small>(WordPressにログインしているか)</small></h3>
+<p>{$wp_login_user}</p>
 
 <h3>■REMOTE_ADDR <small>(IPアドレス)</small></h3>
 <p>{$server['REMOTE_ADDR']}</p>
