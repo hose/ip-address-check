@@ -1,121 +1,261 @@
+/**
+ * IP Address Check Plugin JavaScript
+ * Version: 0.3
+ * Updated: 2024
+ */
+
 jQuery(function($) {
-    //appCodeName
-    $("#appCodeName").text(navigator.appCodeName);
+    'use strict';
 
-    //appName
-    $("#appName").text(navigator.appName);
+    // Initialize all browser information
+    initializeBrowserInfo();
 
-    //appVersion
-    $("#appVersion").text(navigator.appVersion);
+    // Set up event listeners
+    setupEventListeners();
 
-    //ユーザーエージェント
-    $("#userAgent").text(navigator.userAgent);
+    // Populate copy area
+    updateCopyArea();
 
-    //ディスプレイサイズ
-    var displaySize = screen.width + ' × ' + screen.height + ' (pixel)';
-    $("#displaySize").text(displaySize);
+    /**
+     * Initialize all browser information
+     */
+    function initializeBrowserInfo() {
+        // Basic navigator properties
+        setElementText('#appCodeName', navigator.appCodeName);
+        setElementText('#appName', navigator.appName);
+        setElementText('#appVersion', navigator.appVersion);
+        setElementText('#userAgent', navigator.userAgent);
 
-    //ブラウザサイズ
-    var screenSize = window.innerWidth + ' × ' + window.innerHeight + ' (pixel)';
-    $("#screenSize").text(screenSize);
-    //リサイズ時の処理
-    var timer = false;
-    $(window).resize(function() {
-        if (timer !== false) {
-            clearTimeout(timer);
+        // Display information
+        updateDisplayInfo();
+
+        // Referrer information
+        const referrer = document.referrer || "無し";
+        setElementText('#referrer', referrer);
+
+        // Color depth
+        const colorDepth = screen.colorDepth;
+        const colorInfo = `${colorDepth}bit (${Math.pow(2, colorDepth).toLocaleString()}色)`;
+        setElementText('#colorDepth', colorInfo);
+
+        // Language information
+        setElementText('#language', navigator.language || "取得できませんでした。");
+        setElementText('#browserLanguage', navigator.browserLanguage || "取得できませんでした。");
+
+        // Capabilities
+        setElementText('#cookieEnabled', navigator.cookieEnabled ? "可" : "不可");
+        
+        // Java support (deprecated but still checking)
+        try {
+            const javaEnabled = navigator.javaEnabled ? navigator.javaEnabled() : false;
+            setElementText('#javaEnabled', javaEnabled ? "可" : "不可");
+        } catch (e) {
+            setElementText('#javaEnabled', "不可 (非対応)");
         }
-        timer = setTimeout(function() {
-            screenSize = window.innerWidth + ' × ' + window.innerHeight + ' (pixel)';
-            $("#screenSize").text(screenSize);
-            //ブラウザのりサイズ時に、コピー用エリアにもコピー
-            $("#copy-ip-address").text($("#ip-box").text());
-        }, 600);
-    });
 
-    //referrer
-    var referrer_is;
-    if (document.referrer) {
-        referrer_is = document.referrer;
-    } else {
-        referrer_is = "無し";
+        // JavaScript is obviously enabled if this runs
+        $("#no-js").html("").after("有効");
+
+        // MIME types
+        updateMimeTypes();
+
+        // Plugins
+        updatePlugins();
+
+        // Additional modern browser information
+        addModernBrowserInfo();
     }
-    $("#referrer").text(referrer_is);
-    
 
-    //色数
-    var color = screen.colorDepth + 'bit';
-    color += ' (' + Math.pow(2, screen.colorDepth) + '色)';
-    $("#colorDepth").text(color);
-
-    //navigator.language
-    var language_is;
-    if(navigator.language){
-        language_is = navigator.language;
-    }else{
-        language_is = "取得できませんでした。";
-    }
-    $("#language").text(language_is);
-
-    //navigator.browserLanguage
-    var browserLanguage_is;
-    if(navigator.browserLanguage){
-        browserLanguage_is = navigator.browserLanguage;
-    }else{
-        browserLanguage_is = "取得出来ませんでした。";
-    }
-    $("#browserLanguage").text(browserLanguage_is);
-    
-
-    //cookieが使えるか
-    var cookie_is;
-    if (navigator.cookieEnabled){
-        cookie_is = "可";
-    } else {
-        cookie_is = "不可";
-    }
-    $("#cookieEnabled").text(cookie_is);
-
-    //javaが使えるか
-    var java_is;
-    if (navigator.javaEnabled()) { 
-        java_is = "可";
-    } else {
-        java_is = "不可";   
-    }
-    $("#javaEnabled").text(java_is);
-
-    //jsが使えるか
-    $("#no-js").html("").after("有効");
-
-    //mimeTypes
-    var i_mimeTypes;
-    var j_mimeTypes = 1;
-    var mimeTypes = "";
-    var value;
-    for(i_mimeTypes=0; i_mimeTypes<navigator.mimeTypes.length; i_mimeTypes++){
-        value = navigator.mimeTypes[i_mimeTypes].type;
-        mimeTypes += j_mimeTypes + ' : ' + value + '<br>';
-        j_mimeTypes++;
-    }
-    $("#mimeTypes").html(mimeTypes);
-
-    //プラグイン
-    var i_plugins;
-    var j_plugins = 1;
-    var plugins = "";
-    var value_name, value_description;
-    for(i_plugins=0; i_plugins<navigator.plugins.length; i_plugins++){
-        value_name        = navigator.plugins[i_plugins].name;
-        value_description = navigator.plugins[i_plugins].description;
-        plugins += j_plugins + ' : ' + value_name + '<br>';
-        if(value_description){
-            plugins += ' (' + value_description + ')<br>';
+    /**
+     * Set element text with error handling
+     */
+    function setElementText(selector, text) {
+        try {
+            $(selector).text(text || "情報がありません。");
+        } catch (e) {
+            console.warn(`Failed to set text for ${selector}:`, e);
         }
-        j_plugins++;
     }
-    $("#plugins").html(plugins);
 
-    //コピー用エリアにコピー
-    $("#copy-ip-address").text($("#ip-box").text());
+    /**
+     * Update display and screen information
+     */
+    function updateDisplayInfo() {
+        const displaySize = `${screen.width} × ${screen.height} (pixel)`;
+        setElementText('#displaySize', displaySize);
 
+        const screenSize = `${window.innerWidth} × ${window.innerHeight} (pixel)`;
+        setElementText('#screenSize', screenSize);
+    }
+
+    /**
+     * Set up event listeners
+     */
+    function setupEventListeners() {
+        let resizeTimer = null;
+        
+        // Debounced resize handler
+        $(window).on('resize', function() {
+            if (resizeTimer) {
+                clearTimeout(resizeTimer);
+            }
+            
+            resizeTimer = setTimeout(function() {
+                updateDisplayInfo();
+                updateCopyArea();
+            }, 300); // Reduced delay for better responsiveness
+        });
+
+        // Copy button functionality
+        $('#copy-button').on('click', function() {
+            copyToClipboard();
+        });
+    }
+
+    /**
+     * Update MIME types list
+     */
+    function updateMimeTypes() {
+        try {
+            if (!navigator.mimeTypes || navigator.mimeTypes.length === 0) {
+                $("#mimeTypes").html("サポートされていないか、情報がありません。");
+                return;
+            }
+
+            let mimeTypesHtml = "";
+            Array.from(navigator.mimeTypes).forEach((mimeType, index) => {
+                mimeTypesHtml += `${index + 1} : ${mimeType.type}<br>`;
+            });
+            
+            $("#mimeTypes").html(mimeTypesHtml);
+        } catch (e) {
+            $("#mimeTypes").html("取得エラー");
+        }
+    }
+
+    /**
+     * Update plugins list
+     */
+    function updatePlugins() {
+        try {
+            if (!navigator.plugins || navigator.plugins.length === 0) {
+                $("#plugins").html("プラグインが見つからないか、情報がありません。");
+                return;
+            }
+
+            let pluginsHtml = "";
+            Array.from(navigator.plugins).forEach((plugin, index) => {
+                pluginsHtml += `${index + 1} : ${plugin.name}<br>`;
+                if (plugin.description) {
+                    pluginsHtml += ` (${plugin.description})<br>`;
+                }
+            });
+            
+            $("#plugins").html(pluginsHtml);
+        } catch (e) {
+            $("#plugins").html("取得エラー");
+        }
+    }
+
+    /**
+     * Add modern browser information
+     */
+    function addModernBrowserInfo() {
+        // Add touch support detection
+        const touchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Add to existing sections or create new info
+        if ($('#touchSupport').length) {
+            setElementText('#touchSupport', touchSupport ? "対応" : "非対応");
+        }
+
+        // Add connection information if available
+        if (navigator.connection || navigator.mozConnection || navigator.webkitConnection) {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if ($('#connectionType').length && connection.effectiveType) {
+                setElementText('#connectionType', connection.effectiveType);
+            }
+        }
+
+        // Add device memory if available
+        if (navigator.deviceMemory && $('#deviceMemory').length) {
+            setElementText('#deviceMemory', `${navigator.deviceMemory}GB`);
+        }
+
+        // Add hardware concurrency
+        if (navigator.hardwareConcurrency && $('#hardwareConcurrency').length) {
+            setElementText('#hardwareConcurrency', `${navigator.hardwareConcurrency}コア`);
+        }
+    }
+
+    /**
+     * Update copy area with current information
+     */
+    function updateCopyArea() {
+        try {
+            const ipBoxText = $("#ip-box").text();
+            $("#copy-ip-address").val(ipBoxText);
+        } catch (e) {
+            console.warn("Failed to update copy area:", e);
+        }
+    }
+
+    /**
+     * Copy to clipboard functionality
+     */
+    function copyToClipboard() {
+        try {
+            const copyText = document.getElementById("copy-ip-address");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            // Try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(copyText.value).then(function() {
+                    showCopyFeedback("コピーしました！");
+                }).catch(function() {
+                    // Fallback to execCommand
+                    fallbackCopy(copyText);
+                });
+            } else {
+                fallbackCopy(copyText);
+            }
+        } catch (e) {
+            showCopyFeedback("コピーに失敗しました", "error");
+            console.error("Copy failed:", e);
+        }
+    }
+
+    /**
+     * Fallback copy method
+     */
+    function fallbackCopy(textElement) {
+        try {
+            document.execCommand('copy');
+            showCopyFeedback("コピーしました！");
+        } catch (e) {
+            showCopyFeedback("手動でコピーしてください", "warning");
+        }
+    }
+
+    /**
+     * Show copy feedback to user
+     */
+    function showCopyFeedback(message, type = "success") {
+        const button = $('#copy-button');
+        const originalText = button.text();
+        
+        button.text(message);
+        button.addClass(`copy-${type}`);
+        
+        setTimeout(function() {
+            button.text(originalText);
+            button.removeClass(`copy-${type}`);
+        }, 2000);
+    }
+
+    // Initialize performance monitoring (optional)
+    if (window.performance && window.performance.mark) {
+        window.performance.mark('ip-address-check-loaded');
+    }
 });
