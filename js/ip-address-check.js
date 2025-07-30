@@ -91,7 +91,8 @@ jQuery(function($) {
     var i_mimeTypes;
     var j_mimeTypes = 1;
     var mimeTypes = "";
-    for(i_mimeTypes=0; i_mimeTypes<navigator.mimeTypes.length-1; i_mimeTypes++){
+    var value;
+    for(i_mimeTypes=0; i_mimeTypes<navigator.mimeTypes.length; i_mimeTypes++){
         value = navigator.mimeTypes[i_mimeTypes].type;
         mimeTypes += j_mimeTypes + ' : ' + value + '<br>';
         j_mimeTypes++;
@@ -102,7 +103,8 @@ jQuery(function($) {
     var i_plugins;
     var j_plugins = 1;
     var plugins = "";
-    for(i_plugins=0; i_plugins<navigator.plugins.length-1; i_plugins++){
+    var value_name, value_description;
+    for(i_plugins=0; i_plugins<navigator.plugins.length; i_plugins++){
         value_name        = navigator.plugins[i_plugins].name;
         value_description = navigator.plugins[i_plugins].description;
         plugins += j_plugins + ' : ' + value_name + '<br>';
